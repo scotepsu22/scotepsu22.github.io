@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]><html class="no-js ie6 oldie" xmlns:fb="http://ogp.me/ns/fb#" lang="en-US" itemscope itemtype="http://schema.org/WebPage"><![endif]-->
+<!--[if IE 7]><html class="no-js ie7 oldie" xmlns:fb="http://ogp.me/ns/fb#" lang="en-US" itemscope itemtype="http://schema.org/WebPage"><![endif]-->
+<!--[if IE 8]><html class="no-js ie8 oldie" xmlns:fb="http://ogp.me/ns/fb#" lang="en-US" itemscope itemtype="http://schema.org/WebPage"><![endif]-->
+<!--[if gt IE 8]><!--><html class="no-js" xmlns:fb="http://ogp.me/ns/fb#" lang="en-US" itemscope itemtype="http://schema.org/WebPage"><!--<![endif]-->
+<head>
+	<meta charset="UTF-8">
+
+	<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+	Remove this if you use the .htaccess -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<!-- Mobile viewport optimized: j.mp/bplateviewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title></title>
+	
+	<!--[if lt IE 9]>
+	<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.2/journal/bootstrap.min.css" type='text/css' media='all' />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    
+    <!-- Calculator specific -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1/Chart.min.js"></script>
+    <style>
+    .slider-tooltip {
+        display: block;
+        position: absolute;
+        border: 1px solid #D9D9D9;
+        font: 400 12px/12px Arial;
+        border-radius: 3px;
+        background: #fff;
+        top: -43px;
+        padding: 5px;
+        left: -9px;
+        text-align: center;
+        width: 50px;
+    }
+    .slider-tooltip strong {
+        display: block;
+        padding: 2px;
+    }
+    </style>
+</head>
+
+<body style="border: 1px solid #cccccc;">
+  <div class="container">
+    <h1 class="text-muted">Your monthly payment will be <span style="color: #cc6666;">$<span id="monthlyTotal"></span></span></h1>
+    <div class="col-sm-3">
+        <label>Home price ($)</label>
+        <input type="text" id="homePrice" class="form-control input-sm">
+
+        <label>Down payment</label>
+        <input type="text" id="downPayment" class="form-control input-sm">
+
+        <label>Program/Rate</label>
+        <select id="programRate" class="form-control input-sm">
+            <option value="custom-40">40 year term</option>
+            <option value="custom-30" selected>30 year term</option>
+            <option value="custom-25">25 year term</option>
+            <option value="custom-20">20 year term</option>
+            <option value="custom-15">15 year term</option>
+            <option value="custom-10">10 year term</option>
+        </select>
+
+        <label>Rate (%)</label>
+        <input type="text" id="yearlyRate" value="" class="form-control input-sm">
+        
+        <label>
+        <input type="checkbox" id="includeTaxes" value="1" checked> Include tax/ins
+        </label>
+
+        <div>
+        <a href="javascript:showAdvancedTab()" id="showAdvancedButton" class="btn btn-xs btn-default">
+            <span class="glyphicon glyphicon-chevron-down"> </span> Advanced
+        </a>
+        </div>
+        
+        <div id="advancedTab">
+            <label>Property taxes (%)</label>
+            <input type="text" id="propertyTaxPercent" value="" class="form-control input-sm">
+
+            <label>Homeowners ins. ($/yr)</label>
+            <input type="text" id="homeownersIns" value="" class="form-control input-sm">
+
+            <label>
+            <input type="checkbox" id="includePMI" value="1" checked> Include PMI?
+            </label>
+            
+            <div>
+            <label>HOA dues ($/mo)</label>
+            <input type="text" id="hoaDues" value="" class="form-control input-sm">
+            </div>
+            
+            <p><a href="javascript:hideAdvancedTab()" class="btn btn-xs btn-default">
+                <span class="glyphicon glyphicon-chevron-up"> </span> Simple
+            </a></p>
+        </div>
+    </div>
+
+    <div class="col-sm-9">
+        <h4 class="text-muted">Payment Breakdown</h4>
+        <table class="table table-condensed">
+        <tr>
+            <td>
+                <canvas id="pieChart" width="100" height="100" style="margin-top: 10px;"></canvas>
+            </td>
+            <td>
+                <table class="table table-condensed table-striped table-hover small">
+                <tr>
+                    <td style="border-top: 0;"><strong>Total Mortgage Payment</strong></td>
+                    <td align="right" style="border-top: 0;"><strong>$<span id="monthlyTotalCalc"></span></strong></td>
+                </tr>
+                <tr>
+                    <td>Principal &amp; Interest</td>
+                    <td align="right">$<span id="monthlyBaseCalc"></span></td>
+                </tr>
+                <tr>
+                    <td>Property Taxes</td>
+                    <td align="right">$<span id="propertyTaxesCalc"></span></td>
+                </tr>
+                <tr>
+                    <td>Homeowners Insurance</td>
+                    <td align="right">$<span id="homeownersInsCalc"></span></td>
+                </tr>
+                <tr>
+                    <td>Private Mortgage Insurance</td>
+                    <td align="right">$<span id="pmiCalc"></span></td>
+                </tr>
+                <tr>
+                    <td>Homeowners Association Dues</td>
+                    <td align="right">$<span id="hoaDuesCalc"></span></td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+        </table>
+
+        <h4 class="text-muted">Payment Schedule</h4>
+        <canvas id="lineChart" width="400" height="220"></canvas>
+        <table class="table table-condensed table-striped table-hover small">
+        <tr>
+            <th></th>
+            <th>1st Year</th>
+            <th><span id="line-label-2"></span>th Year</th>
+            <th><span id="line-label-3"></span>th Year</th>
+        </tr>
+        <tr>
+            <th nowrap><span class="fa fa-circle" style="color: #69b9b7;"></span> Principal</th>
+            <td>$<span id="line-value-p-1"></span></td>
+            <td>$<span id="line-value-p-2"></span></td>
+            <td>$<span id="line-value-p-3"></span></td>
+        </tr>
+        <tr>
+            <th nowrap><span class="fa fa-circle" style="color: #3568bc;"></span> Interest</th>
+            <td>$<span id="line-value-i-1"></span></td>
+            <td>$<span id="line-value-i-2"></span></td>
+            <td>$<span id="line-value-i-3"></span></td>
+        </tr>
+        </table>
+        <div>* Please note that payments after fixed periods are estimates and may change based on rates at the time of reset.</div>
+    </div>
+  </div>
+
+  <script>
+    var homePrice = 400000;
+    var downPayment = 80000;
+    var currentRate = 3.629;
+    var propertyTaxPercent = 1.2;
+    var homeownersIns = 800;
+    var hoaDues = 0;
+    var pmiRatioMin = 34.26;
+    var pmiRatioMax = 81.66;
+
+    Array.prototype.sum = function () {
+        var total = 0;
+        var i = this.length; 
+
+        while (i--) {
+            total += this[i];
+        }
+
+        return total;
+    }
+
+    function showAdvancedTab() {
+        $('#advancedTab').show(100);
+        $('#showAdvancedButton').hide(100);
+    }
+
+    function hideAdvancedTab() {
+        $('#advancedTab').hide(100);
+        $('#showAdvancedButton').show(100);
+    }
+
+    function recalculate() {
+        var homePrice = $('#homePrice').val().replace(/,/g, '');
+        var numberYears = $('#programRate').val().split('-')[1];
+        var numberMonths = numberYears * 12;
+        var downPayment = $('#downPayment').val().replace(/,/g, '');
+        var downPaymentPercent = downPayment * 100.0 / homePrice;
+        var yearlyRate = $('#yearlyRate').val() / 100.0;
+        
+        var P = homePrice - downPayment;
+        var r = yearlyRate / 12;
+        var N = numberMonths;
+        var monthlyBase = P * r * Math.pow(1 + r, N) / (Math.pow(1 + r, N) - 1);
+        var propertyTaxes = 0;
+        var homeownersMonthly = 0;
+        var pmiMonthly = 0;
+        var hoaDuesMonthly = 0;
+        if ($('#includeTaxes:checked').val()) {
+            propertyTaxes = homePrice * $('#propertyTaxPercent').val() / 100.0 / 12;
+            homeownersMonthly = $('#homeownersIns').val() / 12.0;
+            if (downPaymentPercent < 20 && $('#includePMI:checked').val()) {
+                pmiMonthly = (homePrice - downPayment) * (pmiRatioMin + ((20 - downPaymentPercent) / 20) * (pmiRatioMax - pmiRatioMin)) / 100000;
+            }
+            hoaDuesMonthly = $('#hoaDues').val();
+        }
+        monthlyTotal = monthlyBase + propertyTaxes + homeownersMonthly + pmiMonthly + hoaDuesMonthly;
+
+        $('#monthlyTotal').text(numeral(monthlyTotal).format('0,0'));
+        $('#monthlyTotalCalc').text(numeral(monthlyTotal).format('0,0'));
+        $('#monthlyBaseCalc').text(numeral(monthlyBase).format('0,0'));
+        $('#propertyTaxesCalc').text(numeral(propertyTaxes).format('0,0'));
+        $('#homeownersInsCalc').text(numeral(homeownersMonthly).format('0,0'));
+        $('#pmiCalc').text(numeral(pmiMonthly).format('0,0'));
+        $('#hoaDuesCalc').text(numeral(hoaDuesMonthly).format('0,0'));
+        
+        var pieChartData = [{value: Math.round(monthlyBase),
+                             color: "#88bb44",
+                             highlight: "#98cb54"}];
+                             
+        if (propertyTaxes) {
+            pieChartData.push({value: Math.round(propertyTaxes),
+                              color: "#c5ea93",
+                              highlight: "#d5faa3"})
+        }
+        
+        if (homeownersMonthly) {
+            pieChartData.push({value: Math.round(homeownersMonthly),
+                              color: "#dcf8b6",
+                              highlight: "#ecffc6"})
+        }
+
+        if (hoaDuesMonthly) {
+            pieChartData.push({value: Math.round(hoaDuesMonthly),
+                             color: "#486c17",
+                             highlight: "#587c27"})
+        }
+        
+        if (pmiMonthly) {
+            pieChartData.push({value: Math.round(pmiMonthly),
+                               color: "#558800",
+                               highlight: "#659810"})
+        }
+        
+        var ctx = document.getElementById("pieChart").getContext("2d");
+        var pieChartOptions = {showTooltips: false,
+                               tooltipTemplate: "<" + "%= '$' +  numeral(value).format('0,0') %>",
+                               animationSteps: 50};
+        var pieChart = new Chart(ctx).Pie(pieChartData, pieChartOptions);	
+        
+        var remaining = homePrice - downPayment;
+        var principalCurrent;
+        var interestCurrent;
+        var principalArray = [0];
+        var interestArray = [0];
+        var principalChartArray = [0];
+        var interestChartArray = [0];
+        var lineLabels = [''];
+        for (var i = 1; i <= numberMonths; i++) {
+            interestCurrent = remaining * yearlyRate / 12;
+            principalCurrent = monthlyBase - interestCurrent;
+            principalArray.push(principalArray[i-1] + Math.round(principalCurrent));
+            interestArray.push(interestArray[i-1] + Math.round(interestCurrent));
+            remaining -= principalCurrent;
+            if (i % 10 == 0 || i == numberMonths) {
+                principalChartArray.push(principalArray[i]);
+                interestChartArray.push(interestArray[i]);
+                lineLabels.push(i % 100 == 0 ? (i + "mo") : "");
+            }
+        }
+        
+        var lineChartData = {
+            labels: lineLabels,
+            datasets: [
+                {
+                    label: "Principal",
+                    fillColor: "rgba(105,185,183,0.2)",
+                    strokeColor: "rgba(105,185,183,1)",
+                    pointColor: "rgba(105,185,183,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(105,185,183,1)",
+                    data: principalChartArray
+                },
+                {
+                    label: "Interest",
+                    fillColor: "rgba(53,104,188,0.2)",
+                    strokeColor: "rgba(53,104,188,1)",
+                    pointColor: "rgba(53,104,188,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(53,104,188,1)",
+                    data: interestChartArray
+                }
+            ]
+        };
+        
+        ctx = document.getElementById("lineChart").getContext("2d");
+        var lineChartOptions = {scaleShowGridLines: true,
+                                scaleShowVerticalLines: false,    
+                                showTooltips: false,
+                                skipLabels: 10,
+                                bezierCurveTension : 0.4,
+                                scaleStartValue: 0,
+                                scaleLabel: "<" + "%= '$' + value/1000 + 'K' %>",
+                                pointDot: false,
+                                datasetFill: false};
+        var lineChart = new Chart(ctx).Line(lineChartData, lineChartOptions);
+        
+        $('#line-label-2').text(Math.floor(numberYears / 2));
+        $('#line-label-3').text(numberYears);
+        $('#line-value-p-1').text(numeral(principalArray[12]).format('0,0'));
+        $('#line-value-p-2').text(numeral(principalArray[Math.floor(numberYears / 2) * 12]).format('0,0'));
+        $('#line-value-p-3').text(numeral(homePrice - downPayment).format('0,0'));
+        $('#line-value-i-1').text(numeral(interestArray[12]).format('0,0'));
+        $('#line-value-i-2').text(numeral(interestArray[Math.floor(numberYears / 2) * 12]).format('0,0'));
+        $('#line-value-i-3').text(numeral(interestArray[numberYears * 12]).format('0,0'));
+
+        $('#homePrice').val(numeral(homePrice).format('0,0'));
+        $('#downPayment').val(numeral(downPayment).format('0,0'));
+    }
+
+    $(document).ready(function(){
+        $('#homePrice').change(recalculate);    
+        $('#downPayment').change(recalculate);    
+        $('#programRate').change(recalculate);    
+        $('#yearlyRate').change(recalculate);    
+        $('#propertyTaxPercent').change(recalculate);    
+        $('#homeownersIns').change(recalculate);    
+        $('#hoaDues').change(recalculate);    
+        $('#includeTaxes').change(recalculate);
+        $('#includePMI').change(recalculate);
+        
+        $('#homePrice').val(numeral(homePrice).format('0,0'));
+        $('#downPayment').val(numeral(downPayment).format('0,0'));
+        $('#yearlyRate').val(currentRate);
+        $('#propertyTaxPercent').val(propertyTaxPercent);
+        $('#homeownersIns').val(homeownersIns);
+        $('#hoaDues').val(hoaDues);
+
+        recalculate();
+        hideAdvancedTab();
+    });
+
+  </script>
+</body>
+</html>
