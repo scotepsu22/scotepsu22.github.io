@@ -225,16 +225,16 @@
         if ($('input[name=budget-radio]:checked').val() == 'A') {
             annualIncome = parseFloat($('#annualIncome').val().replace(/,/g, ''));
             monthlyPayment = annualIncome * debtToIncomePercent / 1200 - monthlyDebts;
-            $('#monthlyPayment').val(numeral(monthlyPayment).format('0,0'));
             $('#monthlyPayment').attr('readonly', 'readonly');
             $('#annualIncome').removeAttr('readonly');
         } else {
             monthlyPayment = parseFloat($('#monthlyPayment').val().replace(/,/g, ''));
             annualIncome = (monthlyPayment + monthlyDebts) * 1200 / debtToIncomePercent;
-            $('#annualIncome').val(numeral(annualIncome).format('0,0'));
             $('#annualIncome').attr('readonly', 'readonly');
             $('#monthlyPayment').removeAttr('readonly');
         }
+        $('#annualIncome').val(numeral(annualIncome).format('0,0'));
+        $('#monthlyPayment').val(numeral(monthlyPayment).format('0,0'));
         
         var monthlyIncome = annualIncome / 12;
         var incomeTaxMonthly = 0;
@@ -392,10 +392,10 @@
         $("#debtToIncomeSlider").on({slide: recalculate});
 
         $('input[name=budget-radio]').change(recalculate);
-        $('#annualIncome').change(recalculate);    
-        $('#monthlyPayment').change(recalculate);    
-        $('#downPayment').change(recalculate);    
-        $('#programRate').change(recalculate);    
+        $('#annualIncome').keyup(recalculate);
+        $('#monthlyPayment').keyup(recalculate);
+        $('#downPayment').change(recalculate);
+        $('#programRate').change(recalculate);
         $('#yearlyRate').change(recalculate);    
         $('#propertyTaxPercent').change(recalculate);    
         $('#homeOwnersIns').change(recalculate);    
