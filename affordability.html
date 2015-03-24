@@ -126,7 +126,7 @@
         <table class="table table-condensed">
         <tr>
             <td>
-                <canvas id="pieChart" width="100" height="100" style="margin-top: 10px;"></canvas>
+                <canvas id="pieChart" style="width: 100px; height: 100px; margin-top: 10px;"></canvas>
             </td>
             <td>
                 <table class="table table-condensed table-striped table-hover small">
@@ -246,7 +246,6 @@
             monthlyBase = monthlyBase - hoaDuesMonthly - homeOwnersMonthly;
         }
         var leftOver = monthlyIncome - monthlyPayment - monthlyDebts - incomeTaxMonthly
-        
 
         var r = yearlyRate / 12;
         var N = numberMonths;
@@ -300,6 +299,8 @@
                                highlight: "#73aa31"})
         }
         
+        document.getElementById("pieChart").width = 100;
+        document.getElementById("pieChart").height = 100;
         var ctx = document.getElementById("pieChart").getContext("2d");
         var pieChartOptions = {showTooltips: false,
                                tooltipTemplate: "<" + "%= '$' +  numeral(value).format('0,0') %>",
