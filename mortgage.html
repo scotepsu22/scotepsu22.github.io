@@ -261,6 +261,8 @@
                                highlight: "#659810"})
         }
         
+        document.getElementById("pieChart").width = 100;
+        document.getElementById("pieChart").height = 100;
         var ctx = document.getElementById("pieChart").getContext("2d");
         var pieChartOptions = {showTooltips: false,
                                tooltipTemplate: "<" + "%= '$' +  numeral(value).format('0,0') %>",
